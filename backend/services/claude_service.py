@@ -1,2 +1,1 @@
-class ClaudeService:
-    pass
+import anthropic\nfrom config import settings\n\nclass ClaudeService:\n    def __init__(self):\n        pass # Mocked for now\n\n    async def model_capabilities(self, signals):\n        return {'capabilities': []}\n
