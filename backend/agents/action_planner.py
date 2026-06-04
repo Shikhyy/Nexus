@@ -1,2 +1,1 @@
-class ActionPlannerAgent:
-    pass
+from services.gemini_service import GeminiService\n\nclass ActionPlannerAgent:\n    def __init__(self, gemini: GeminiService):\n        self.gemini = gemini\n\n    async def propose_actions(self, gap_index, calendar_context):\n        return await self.gemini.plan_actions({'gaps': gap_index, 'calendar': calendar_context})\n
