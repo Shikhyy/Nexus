@@ -1,2 +1,1 @@
-class GapAnalyserAgent:
-    pass
+class GapAnalyserAgent:\n    def compute_gap(self, capability_model, domain_demand_model):\n        # Algorithm: cosine similarity between cap and demand embeddings\n        pass\n
