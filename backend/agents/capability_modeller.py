@@ -1,2 +1,1 @@
-class CapabilityModellerAgent:
-    pass
+from services.claude_service import ClaudeService\n\nclass CapabilityModellerAgent:\n    def __init__(self, claude: ClaudeService):\n        self.claude = claude\n\n    async def build_model(self, m365_activity):\n        return await self.claude.model_capabilities(m365_activity)\n
