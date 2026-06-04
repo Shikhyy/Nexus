@@ -1,2 +1,1 @@
-class GeminiService:
-    pass
+import google.generativeai as genai\nfrom config import settings\n\nclass GeminiService:\n    def __init__(self):\n        pass # Mocked for now\n\n    async def plan_actions(self, context):\n        return {'actions': []}\n
