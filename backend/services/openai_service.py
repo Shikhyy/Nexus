@@ -1,2 +1,1 @@
-class OpenAIService:
-    pass
+from openai import AsyncAzureOpenAI\nfrom config import settings\n\nclass OpenAIService:\n    def __init__(self):\n        self.client = AsyncAzureOpenAI(\n            api_key=settings.azure_openai_key,\n            api_version='2024-02-15-preview',\n            azure_endpoint=settings.azure_openai_endpoint\n        )\n\n    async def embed(self, text: str):\n        response = await self.client.embeddings.create(model='text-embedding-3-large', input=text)\n        return response.data[0].embedding\n
