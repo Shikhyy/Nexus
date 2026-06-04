@@ -1,1 +1,1 @@
-# Semantic Kernel memory setup
+import semantic_kernel as sk\n# Azure AI Search Memory Store setup\nkernel = sk.Kernel()\n
