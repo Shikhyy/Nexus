@@ -1,2 +1,1 @@
-class SignalFuserAgent:
-    pass
+from services.openai_service import OpenAIService\n\nclass SignalFuserAgent:\n    def __init__(self, ai_service: OpenAIService):\n        self.ai = ai_service\n\n    async def fuse_signals(self, raw_signals):\n        # Logic to combine multiple signals into a domain demand model\n        pass\n
