@@ -1,13 +1,12 @@
 'use client';
-
 import { Bell } from 'lucide-react';
+import { MiniOrb } from '@/components/3d/MiniOrb';
 
 export function TopBar() {
   return (
     <header className="h-16 border-b-[0.5px] border-[var(--color-border)] bg-[var(--color-parchment)] flex items-center justify-between px-8 sticky top-0 z-10">
       <div className="flex items-center gap-4">
-        {/* Placeholder for MiniOrb */}
-        <div className="w-6 h-6 rounded-full bg-[var(--color-sienna)] blur-[2px] opacity-80" />
+        <MiniOrb />
         <span className="font-mono text-xs text-[var(--color-secondary)] uppercase tracking-widest">Co-Evolution Active</span>
       </div>
 
