@@ -1,0 +1,2 @@
+class BingHarvester:
+    pass
