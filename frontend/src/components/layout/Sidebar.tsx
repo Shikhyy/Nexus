@@ -1,16 +1,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Activity, Users, Settings, LogOut, Zap } from 'lucide-react';
+import { LayoutDashboard, Activity, Users, Settings, LogOut, Zap, Network } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const navItems = [
-  { name: 'Dashboard',   icon: LayoutDashboard, path: '/dashboard' },
-  { name: 'Signals',     icon: Activity,        path: '/signals'   },
-  { name: 'Org Heatmap', icon: Users,           path: '/org'       },
-  { name: 'Settings',    icon: Settings,        path: '/settings'  },
+  { name: 'Dashboard',      icon: LayoutDashboard, path: '/dashboard' },
+  { name: 'Signals',        icon: Activity,        path: '/signals'   },
+  { name: 'Org Heatmap',    icon: Users,           path: '/org'       },
+  { name: 'Talent Routing', icon: Network,         path: '/routing'   },
+  { name: 'Settings',       icon: Settings,        path: '/settings'  },
 ];
 
 interface AgentStatus {
