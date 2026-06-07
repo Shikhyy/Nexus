@@ -1,12 +1,22 @@
 'use client';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip, Legend } from 'recharts';
 
 interface TeamReadiness {
   team: string;
   readinessScore: number;
   memberCount: number;
 }
+
+const radarData = [
+  { subject: 'Agentic AI', market: 120, internal: 40, fullMark: 150 },
+  { subject: 'Multimodal', market: 98, internal: 80, fullMark: 150 },
+  { subject: 'Vector DBs', market: 86, internal: 90, fullMark: 150 },
+  { subject: 'Data Eng', market: 99, internal: 85, fullMark: 150 },
+  { subject: 'Causal Inf', market: 85, internal: 30, fullMark: 150 },
+  { subject: 'Edge LLMs', market: 65, internal: 20, fullMark: 150 },
+];
 
 const FALLBACK_TEAMS: TeamReadiness[] = [
   { team: 'Engineering',  readinessScore: 68, memberCount: 12 },
@@ -16,14 +26,7 @@ const FALLBACK_TEAMS: TeamReadiness[] = [
   { team: 'Leadership',   readinessScore: 55, memberCount: 4  },
 ];
 
-const FALLBACK_CAPABILITIES = [
-  { name: 'Python engineering',       level: 0.82, domain: 'technical'   },
-  { name: 'System design',            level: 0.71, domain: 'technical'   },
-  { name: 'Strategic communication',  level: 0.64, domain: 'leadership'  },
-  { name: 'Cross-functional leadership', level: 0.59, domain: 'leadership' },
-  { name: 'Agentic AI design',        level: 0.18, domain: 'technical'   },
-  { name: 'Multimodal ML',            level: 0.31, domain: 'technical'   },
-];
+
 
 function ReadinessBar({ value }: { value: number }) {
   const color = value >= 75 ? 'var(--color-forest)' : value >= 50 ? 'var(--color-ochre)' : 'var(--color-sienna)';
@@ -110,30 +113,23 @@ export default function OrgHeatmap() {
           )}
         </div>
 
-        {/* Capability Depth — static from CapabilityModeller output */}
+        {/* Capability Radar Chart */}
         <div className="bg-[var(--color-linen)] border border-[var(--color-border)] rounded-lg p-6">
           <h2 className="text-lg font-medium text-[var(--color-obsidian)] mb-6" style={{ fontFamily: 'Georgia, serif' }}>
-            Capability Depth
+            Market vs Internal Capability
           </h2>
-          <div className="space-y-5">
-            {FALLBACK_CAPABILITIES.map((cap, i) => (
-              <motion.div
-                key={cap.name}
-                initial={{ opacity: 0, x: 12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.08, duration: 0.4 }}
-                className="space-y-2"
-              >
-                <div className="flex justify-between items-end text-sm">
-                  <div>
-                    <span className="font-medium text-[var(--color-primary)]">{cap.name}</span>
-                    <span className="text-[var(--color-muted)] ml-2 text-xs capitalize">{cap.domain}</span>
-                  </div>
-                  <span className="font-mono text-xs text-[var(--color-muted)]">{(cap.level * 100).toFixed(0)}%</span>
-                </div>
-                <ReadinessBar value={cap.level * 100} />
-              </motion.div>
-            ))}
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                <PolarGrid stroke="var(--color-border)" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--color-secondary)', fontSize: 10 }} />
+                <PolarRadiusAxis angle={30} domain={[0, 150]} tick={false} axisLine={false} />
+                <Radar name="Market Demand" dataKey="market" stroke="var(--color-sienna)" fill="var(--color-sienna)" fillOpacity={0.3} />
+                <Radar name="Internal Capability" dataKey="internal" stroke="var(--color-prussian)" fill="var(--color-prussian)" fillOpacity={0.3} />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--color-parchment)', borderColor: 'var(--color-border)', fontSize: '12px' }} />
+                <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '20px' }} />
+              </RadarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
+import { CopilotPanel } from '@/components/chat/CopilotPanel';
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -10,10 +11,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Sidebar />
       <div className="flex-1 ml-60 flex flex-col min-h-screen">
         <TopBar />
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-8 overflow-y-auto relative">
           {children}
         </main>
       </div>
+      <CopilotPanel />
     </div>
   );
 }

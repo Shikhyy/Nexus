@@ -53,3 +53,19 @@ class ActionPlannerAgent:
             "allActions": existing_actions,
         }
         return await self.gemini.plan_actions(context)
+
+    async def chat(self, user_message: str) -> str:
+        """
+        Handles free-form conversational queries from the Nexus Copilot UI.
+        """
+        logger.info(f"ActionPlanner: handling chat query -> {user_message[:50]}")
+        
+        # MOCK IMPLEMENTATION: In production, this passes the user_message to Gemini
+        # wrapped in Semantic Kernel context.
+        query = user_message.lower()
+        if "agentic" in query or "team" in query:
+            return "Based on Semantic Kernel capability mapping, Dr. Emily Wu and Marcus Johnson have strong latent signals in Agentic AI. I can assemble a Tiger Team for you."
+        if "vector" in query or "db" in query:
+            return "Vector DB adoption is rising (60% Fortune 500). Sarah Jenkins recently committed several Pinecone integrations. I recommend pairing her with a junior dev for a knowledge transfer session."
+        
+        return "I can analyze our market signals against your M365 organizational capability map. Try asking me to form a team or find an internal expert for a specific technology."

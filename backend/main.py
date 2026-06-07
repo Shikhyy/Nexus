@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
-from api.routes import auth, users, gaps, signals, agent, org, routing, progress
+from api.routes import auth, users, gaps, signals, agent, org, routing, chat, progress
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -40,6 +40,7 @@ app.include_router(signals.router,  prefix="/signals",  tags=["signals"])
 app.include_router(agent.router,    prefix="/agent",    tags=["agents"])
 app.include_router(org.router,      prefix="/org",      tags=["org"])
 app.include_router(routing.router,  prefix="/routing",  tags=["routing"])
+app.include_router(chat.router,     prefix="/chat",     tags=["chat"])
 app.include_router(progress.router, prefix="/progress", tags=["progress"])
 
 
