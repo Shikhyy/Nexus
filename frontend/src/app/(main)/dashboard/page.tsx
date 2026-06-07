@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { KPICard } from '@/components/dashboard/KPICard';
 import { GapIndex } from '@/components/dashboard/GapIndex';
 import { SignalFeed } from '@/components/dashboard/SignalFeed';
@@ -61,6 +62,9 @@ const itemVariant: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
 };
+
+const CapabilityGraph = dynamic(() => import('@/components/3d/CapabilityGraph').then(m => ({ default: m.CapabilityGraph })), { ssr: false });
+const SignalNetwork = dynamic(() => import('@/components/3d/SignalNetwork').then(m => ({ default: m.SignalNetwork })), { ssr: false });
 
 export default function Dashboard() {
   const [gaps, setGaps] = useState<Gap[]>(FALLBACK_GAPS);
@@ -174,12 +178,44 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Main Content Grid */}
-      <motion.div variants={itemVariant} className="grid grid-cols-1 lg:grid-cols-3 gap-5 flex-1 min-h-0">
+      <motion.div variants={itemVariant} className="grid grid-cols-1 lg:grid-cols-4 gap-5 flex-1 min-h-0">
         <div className="col-span-1 flex flex-col gap-5 min-h-0">
           <GapIndex gaps={gaps} loading={loading} />
           <ActionPanel actions={actions} loading={loading} />
         </div>
-        <div className="col-span-2 h-full min-h-[520px]">
+        
+        {/* Visual Center */}
+        <div className="col-span-2 h-full min-h-[520px] flex flex-col gap-5">
+          {/* Signal Network (Dark) */}
+          <div className="flex-1 bg-[var(--color-obsidian)] rounded-xl border border-[var(--color-border)] overflow-hidden relative shadow-inner">
+            <div className="absolute top-4 left-4 z-10 pointer-events-none">
+               <h3 className="text-xs font-mono text-[var(--color-muted)] uppercase tracking-widest">Global Signal Network</h3>
+               <div className="flex items-center gap-1.5 mt-1">
+                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-sienna)] animate-pulse" />
+                 <span className="text-[10px] text-white/70">Live Data Fusion</span>
+               </div>
+            </div>
+            <div className="absolute inset-0">
+              <SignalNetwork />
+            </div>
+          </div>
+          
+          {/* Capability Graph (Light) */}
+          <div className="flex-1 bg-[var(--color-linen)] rounded-xl border border-[var(--color-border)] overflow-hidden relative">
+            <div className="absolute top-4 left-4 z-10 pointer-events-none">
+               <h3 className="text-xs font-mono text-[var(--color-muted)] uppercase tracking-widest">Internal Capability Graph</h3>
+               <div className="flex items-center gap-1.5 mt-1">
+                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-forest)] animate-pulse" />
+                 <span className="text-[10px] text-[var(--color-secondary)]">MS Graph Linked</span>
+               </div>
+            </div>
+            <div className="absolute inset-0">
+              <CapabilityGraph />
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-1 h-full min-h-[520px]">
           <SignalFeed signals={signals} loading={loading} />
         </div>
       </motion.div>

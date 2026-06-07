@@ -140,7 +140,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-[var(--color-obsidian)] hover:bg-black text-white rounded-xl text-sm font-semibold transition-all disabled:opacity-60 disabled:cursor-wait mt-2 shadow-md hover:shadow-lg"
+                className="w-full flex items-center justify-center gap-2 py-3.5 bg-[var(--color-obsidian)] hover:bg-black text-[var(--color-parchment)] rounded-xl text-sm font-semibold transition-all disabled:opacity-60 disabled:cursor-wait mt-2 shadow-md hover:shadow-lg"
               >
                 {isLoading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
