@@ -1,2 +1,35 @@
 from fastapi import APIRouter
+from models.gap import GapIndex, Gap
+
 router = APIRouter()
+
+@router.get("/", response_model=GapIndex)
+def get_gaps():
+    return GapIndex(
+        readinessScore=74.0,
+        computedAt="2026-06-07T00:00:00Z",
+        gaps=[
+            Gap(
+                id="1",
+                name="Agentic AI design",
+                domain="technical",
+                coverageScore=0.18,
+                urgencyScore=0.94,
+                horizon="6m",
+                status="critical",
+                signalIds=["sig_1"],
+                trend="widening"
+            ),
+            Gap(
+                id="2",
+                name="Multimodal systems",
+                domain="technical",
+                coverageScore=0.45,
+                urgencyScore=0.72,
+                horizon="18m",
+                status="watch",
+                signalIds=["sig_2"],
+                trend="stable"
+            )
+        ]
+    )
