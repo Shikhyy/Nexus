@@ -35,10 +35,17 @@ function NetworkNodes() {
     return temp;
   }, [nodes]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.1;
-      groupRef.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.05) * 0.2;
+      // Auto-rotation
+      groupRef.current.rotation.y += delta * 0.05;
+      groupRef.current.rotation.x += delta * 0.02;
+
+      // Interactive Mouse Parallax
+      const targetX = (state.pointer.y * Math.PI) / 8;
+      const targetY = (state.pointer.x * Math.PI) / 8;
+      groupRef.current.rotation.x += 0.05 * (targetX - groupRef.current.rotation.x);
+      groupRef.current.rotation.y += 0.05 * (targetY - groupRef.current.rotation.y);
     }
   });
 

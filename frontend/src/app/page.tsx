@@ -2,6 +2,7 @@
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { TerminalHero } from '@/components/home/TerminalHero';
 
 // Dynamic imports to avoid SSR issues with WebGL
 const OrbScene = dynamic(() => import('@/components/3d/OrbScene').then(m => ({ default: m.OrbScene })), { ssr: false });
@@ -11,13 +12,13 @@ const TalentConnection = dynamic(() => import('@/components/3d/TalentConnection'
 
 export default function Home() {
   return (
-    <main className="bg-[var(--color-parchment)] text-[var(--color-obsidian)] overflow-x-hidden">
+    <main className="bg-[var(--color-parchment)] text-[var(--color-obsidian)] h-screen overflow-y-auto overflow-x-hidden snap-y snap-mandatory">
       
       {/* SECTION 1: HERO */}
-      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden snap-center">
         <OrbScene />
         
-        <div className="z-10 text-center space-y-6 max-w-3xl relative px-8 pointer-events-none">
+        <div className="z-10 text-center space-y-6 max-w-3xl relative px-8 pointer-events-none flex flex-col items-center">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -34,11 +35,13 @@ export default function Home() {
             </p>
           </motion.div>
 
+          <TerminalHero />
+
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="pt-6 flex gap-4 justify-center pointer-events-auto"
+            className="pt-6 flex gap-4 justify-center pointer-events-auto w-full"
           >
             <Link
               href="/dashboard"
@@ -62,7 +65,7 @@ export default function Home() {
       </section>
 
       {/* SECTION 2: SIGNAL FUSER */}
-      <section className="relative h-screen flex items-center px-8 md:px-24 border-t border-[var(--color-border)]">
+      <section className="relative h-screen flex items-center px-8 md:px-24 border-t border-[var(--color-border)] snap-center">
         <SignalNetwork />
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
@@ -83,7 +86,7 @@ export default function Home() {
       </section>
 
       {/* SECTION 3: CAPABILITY MODELLER */}
-      <section className="relative h-screen flex items-center justify-end px-8 md:px-24 border-t border-[var(--color-border)] bg-[var(--color-linen)]">
+      <section className="relative h-screen flex items-center justify-end px-8 md:px-24 border-t border-[var(--color-border)] bg-[var(--color-linen)] snap-center">
         <CapabilityGraph />
         <motion.div 
           initial={{ opacity: 0, x: 50 }}
@@ -103,8 +106,8 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* SECTION 4: TALent BROKER */}
-      <section className="relative h-screen flex items-center px-8 md:px-24 border-t border-[var(--color-border)]">
+      {/* SECTION 4: TALENT BROKER */}
+      <section className="relative h-screen flex items-center px-8 md:px-24 border-t border-[var(--color-border)] snap-center">
         <TalentConnection />
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
@@ -126,6 +129,24 @@ export default function Home() {
         </motion.div>
       </section>
       
+      {/* FOOTER */}
+      <footer className="relative bg-[var(--color-obsidian)] text-[var(--color-parchment)] py-12 px-8 md:px-24 snap-end flex flex-col items-center justify-center text-center">
+        <div className="mb-6 flex gap-4 text-[var(--color-secondary)]">
+          <span className="text-xs uppercase tracking-widest font-mono">Azure OpenAI</span>
+          <span className="text-xs uppercase tracking-widest font-mono">Semantic Kernel</span>
+          <span className="text-xs uppercase tracking-widest font-mono">Turbopack</span>
+        </div>
+        <h3 className="text-2xl mb-2" style={{ fontFamily: 'Georgia, serif' }}>Microsoft Build AI 2026</h3>
+        <p className="text-sm text-[var(--color-secondary)] mb-8 max-w-md">
+          Built for the future of enterprise AI orchestration.
+        </p>
+        <Link
+          href="/dashboard"
+          className="px-8 py-3 bg-[var(--color-parchment)] text-[var(--color-obsidian)] rounded-full text-sm font-medium tracking-wide hover:scale-105 transition-transform"
+        >
+          Launch Application
+        </Link>
+      </footer>
     </main>
   );
 }

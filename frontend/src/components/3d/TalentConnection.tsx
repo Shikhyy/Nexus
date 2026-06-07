@@ -6,7 +6,10 @@ import { Sphere } from '@react-three/drei';
 import * as THREE from 'three';
 
 function FlowingParticles() {
+  const groupRef = useRef<THREE.Group>(null);
   const pointsRef = useRef<THREE.Points>(null);
+  const sphere1Ref = useRef<THREE.Mesh>(null);
+  const sphere2Ref = useRef<THREE.Mesh>(null);
   
   const particleCount = 200;
   const positions = useMemo(() => {
@@ -20,33 +23,44 @@ function FlowingParticles() {
     return pos;
   }, []);
 
-  useFrame((state) => {
-    if (pointsRef.current) {
-      const positions = pointsRef.current.geometry.attributes.position.array as Float32Array;
-      for (let i = 0; i < particleCount; i++) {
-        // Move particles from left to right
-        positions[i * 3] += 0.05;
-        // Add sine wave motion
-        positions[i * 3 + 1] += Math.sin(state.clock.elapsedTime * 2 + i) * 0.01;
-        
-        // Reset if they go too far right
-        if (positions[i * 3] > 3) {
-          positions[i * 3] = -3;
-        }
+  useFrame((state, delta) => {
+    if (!groupRef.current || !pointsRef.current || !sphere1Ref.current || !sphere2Ref.current) return;
+    
+    // Auto-rotation
+    groupRef.current.rotation.y += delta * 0.05;
+    sphere1Ref.current.rotation.y -= delta * 0.2;
+    sphere2Ref.current.rotation.y += delta * 0.2;
+
+    // Interactive Mouse Parallax
+    const targetX = (state.pointer.x * Math.PI) / 8;
+    const targetY = (state.pointer.y * Math.PI) / 8;
+    groupRef.current.rotation.x += 0.05 * (targetY - groupRef.current.rotation.x);
+    groupRef.current.rotation.z += 0.05 * (targetX - groupRef.current.rotation.z);
+
+    const posArray = pointsRef.current.geometry.attributes.position.array as Float32Array;
+    for (let i = 0; i < particleCount; i++) {
+      // Move particles from left to right
+      posArray[i * 3] += 0.05;
+      // Add sine wave motion
+      posArray[i * 3 + 1] += Math.sin(state.clock.elapsedTime * 2 + i) * 0.01;
+      
+      // Reset if they go too far right
+      if (posArray[i * 3] > 3) {
+        posArray[i * 3] = -3;
       }
-      pointsRef.current.geometry.attributes.position.needsUpdate = true;
     }
+    pointsRef.current.geometry.attributes.position.needsUpdate = true;
   });
 
   return (
-    <group>
+    <group ref={groupRef}>
       {/* Mentor Sphere */}
-      <Sphere position={[-4, 0, 0]} args={[1.2, 32, 32]}>
+      <Sphere ref={sphere1Ref} position={[-4, 0, 0]} args={[1.2, 32, 32]}>
         <meshBasicMaterial color="#c65d3b" wireframe />
       </Sphere>
       
       {/* Mentee Sphere */}
-      <Sphere position={[4, 0, 0]} args={[1.2, 32, 32]}>
+      <Sphere ref={sphere2Ref} position={[4, 0, 0]} args={[1.2, 32, 32]}>
         <meshBasicMaterial color="#b39d82" wireframe />
       </Sphere>
 

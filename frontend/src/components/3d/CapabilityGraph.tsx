@@ -5,22 +5,24 @@ import { Icosahedron, Edges } from '@react-three/drei';
 import * as THREE from 'three';
 
 function MorphingGraph() {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const innerRef = useRef<THREE.Mesh>(null);
   const outerRef = useRef<THREE.Mesh>(null);
 
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    if (meshRef.current && outerRef.current) {
-      // Rotation
-      meshRef.current.rotation.x = t * 0.2;
-      meshRef.current.rotation.y = t * 0.3;
-      outerRef.current.rotation.x = t * -0.1;
-      outerRef.current.rotation.y = t * -0.2;
-      
-      // Pulsing scale
-      const scale = 1 + Math.sin(t * 2) * 0.05;
-      meshRef.current.scale.set(scale, scale, scale);
-    }
+  useFrame((state, delta) => {
+    if (!groupRef.current || !innerRef.current || !outerRef.current) return;
+    
+    // Auto-rotation
+    groupRef.current.rotation.y += delta * 0.1;
+    innerRef.current.rotation.x -= delta * 0.15;
+    innerRef.current.rotation.z += delta * 0.05;
+    outerRef.current.rotation.y -= delta * 0.05;
+
+    // Interactive Mouse Parallax
+    const targetX = (state.pointer.x * Math.PI) / 6;
+    const targetY = (state.pointer.y * Math.PI) / 6;
+    groupRef.current.rotation.x += 0.05 * (targetY - groupRef.current.rotation.x);
+    groupRef.current.rotation.z += 0.05 * (targetX - groupRef.current.rotation.z);
   });
 
   return (
