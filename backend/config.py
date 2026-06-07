@@ -6,7 +6,9 @@ class Settings(BaseSettings):
     # App
     app_name: str = "NEXUS Human-AI Co-Evolution Engine"
     environment: str = "development"
-    
+    # JWT — MUST be set in .env. Generate with: openssl rand -hex 32
+    secret_key: str = ""
+
     # Groq (Fast LLM Inference)
     groq_api_key: str = ""
     groq_model: str = "llama3-8b-8192"

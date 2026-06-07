@@ -33,3 +33,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Database files — never commit user data
+nexus.db
+*.db

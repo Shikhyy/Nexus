@@ -1,11 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Activity, Users, Settings, LogOut, Network } from 'lucide-react';
+import { LayoutDashboard, Activity, Users, Settings, LogOut, Network, Brain } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { getStoredUser, logout } from '@/lib/api';
 
 const navItems = [
   { name: 'Dashboard',      icon: LayoutDashboard, path: '/dashboard' },
@@ -105,10 +106,22 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="px-4 pb-5 border-t border-[var(--color-border)] pt-4">
-        <button className="flex items-center gap-2.5 text-[var(--color-secondary)] hover:text-[var(--color-obsidian)] transition-colors text-sm w-full">
-          <LogOut size={15} />
+      {/* Footer / User */}
+      <div className="px-4 pb-5 pt-3 border-t border-[var(--color-border)]">
+        <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[var(--color-stone)] transition-colors group mb-1">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[var(--color-sienna)] to-[var(--color-prussian)] flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+            {(getStoredUser()?.name ?? 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-[var(--color-obsidian)] truncate">{getStoredUser()?.name ?? 'User'}</p>
+            <p className="text-[10px] text-[var(--color-muted)] truncate">{getStoredUser()?.company ?? ''}</p>
+          </div>
+        </div>
+        <button
+          onClick={logout}
+          className="flex items-center gap-2 text-[var(--color-secondary)] hover:text-red-500 transition-colors text-xs w-full px-2 py-2 rounded-lg hover:bg-red-500/5"
+        >
+          <LogOut size={13} />
           Sign Out
         </button>
       </div>

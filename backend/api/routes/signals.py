@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models.gap import GapIndex, Gap
 from models.signal import Signal
+from api.routes.auth import get_current_user
 
 router = APIRouter()
 
@@ -26,5 +27,5 @@ MOCK_SIGNALS = [
 ]
 
 @router.get("/")
-def get_signals():
+def get_signals(current_user: dict = Depends(get_current_user)):
     return {"signals": MOCK_SIGNALS, "total": len(MOCK_SIGNALS)}

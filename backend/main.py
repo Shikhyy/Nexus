@@ -1,5 +1,9 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from config import settings
 from api.routes import auth, users, gaps, signals, agent, org, routing, chat, progress
 import logging
@@ -7,32 +11,37 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# ── Rate Limiter ──────────────────────────────────────────────────────────────
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
+
 app = FastAPI(
     title=settings.app_name,
     version="1.0.0",
-    description="Real-time human-AI co-evolution engine powered by Azure AI, AutoGen, Semantic Kernel, and multi-model AI.",
+    description="Real-time human-AI co-evolution engine powered by Groq, AutoGen, and Semantic Kernel.",
 )
 
-from fastapi.responses import JSONResponse
-from fastapi import Request
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# ── Global Error Handler ──────────────────────────────────────────────────────
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Global exception: {exc}")
+    logger.error(f"Global exception on {request.url}: {exc}")
     return JSONResponse(
         status_code=500,
-        content={"detail": "An internal server error occurred.", "error": str(exc)},
+        content={"detail": "An internal server error occurred."},
     )
 
-# CORS — uses settings so it works in dev and production
+# ── CORS ──────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
+# ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(auth.router,     prefix="/auth",     tags=["auth"])
 app.include_router(users.router,    prefix="/users",    tags=["users"])
 app.include_router(gaps.router,     prefix="/gaps",     tags=["gaps"])
@@ -56,7 +65,5 @@ def read_root():
 
 @app.get("/health", tags=["health"])
 def health_check():
-    """
-    Endpoint for load-balancer / Azure App Service health probes.
-    """
+    """Endpoint for load-balancer / Azure App Service health probes."""
     return {"status": "healthy"}

@@ -1,13 +1,18 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from agents.action_planner import ActionPlannerAgent
 from agents.gap_analyser import GapAnalyserAgent
 from models.gap import Gap
 from typing import Optional
+from api.routes.auth import get_current_user
 import logging
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+# Singletons
+_planner = ActionPlannerAgent()
+_analyser = GapAnalyserAgent()
 
 
 class PlanRequest(BaseModel):
@@ -16,25 +21,20 @@ class PlanRequest(BaseModel):
 
 
 @router.post("/plan")
-async def generate_action_plan(req: PlanRequest):
-    """
-    Calls ActionPlannerAgent (Gemini) to produce personalized micro-interventions.
-    """
+async def generate_action_plan(
+    req: PlanRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Calls ActionPlannerAgent (Groq) to produce personalized micro-interventions."""
     try:
-        # Use supplied gaps or load defaults
-        gaps_data: list[dict]
         if req.use_default_gaps or not req.gaps:
-            from api.routes.gaps import get_gaps
-            index = get_gaps()
+            from api.routes.gaps import _get_gap_data
+            index = _get_gap_data()
             gaps_data = [g.model_dump() for g in index.gaps]
         else:
             gaps_data = [g.model_dump() for g in req.gaps]
 
-        import asyncio
-        await asyncio.sleep(1.5) # Simulate LLM inference
-        planner = ActionPlannerAgent()
-        result = await planner.plan(gaps=gaps_data, capability_model={})
-
+        result = await _planner.plan(gaps=gaps_data, capability_model={})
         return {
             "status": "ok",
             "actions": result.get("actions", []),
@@ -46,13 +46,15 @@ async def generate_action_plan(req: PlanRequest):
 
 
 @router.get("/status")
-def agent_status():
+def agent_status(current_user: dict = Depends(get_current_user)):
     """Returns health/status of all active agents."""
+    from config import settings
+    model = settings.groq_model if settings.groq_api_key else "mock"
     return {
         "agents": [
-            {"name": "SignalFuserAgent",        "status": "active", "model": "azure-openai/text-embedding-3-large"},
-            {"name": "CapabilityModellerAgent", "status": "active", "model": "claude-sonnet-4-6"},
-            {"name": "GapAnalyserAgent",        "status": "active", "model": "azure-openai/embeddings"},
-            {"name": "ActionPlannerAgent",      "status": "active", "model": "gemini-1.5-pro"},
+            {"name": "SignalFuserAgent",        "status": "active", "model": f"groq/{model}"},
+            {"name": "CapabilityModellerAgent", "status": "active", "model": f"groq/{model}"},
+            {"name": "GapAnalyserAgent",        "status": "active", "model": f"groq/{model}"},
+            {"name": "ActionPlannerAgent",      "status": "active", "model": f"groq/{model}"},
         ]
     }

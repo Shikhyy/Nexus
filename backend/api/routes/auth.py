@@ -1,18 +1,26 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, EmailStr
 from jose import jwt, JWTError
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 import sqlite3
 
-from api.core.security import get_password_hash, verify_password, create_access_token, SECRET_KEY, ALGORITHM
+from api.core.security import (
+    get_password_hash, verify_password, create_access_token,
+    ALGORITHM, _get_secret_key
+)
 from api.db.database import get_db_connection
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
 
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+
 
 class SignupRequest(BaseModel):
     name: str
@@ -20,99 +28,89 @@ class SignupRequest(BaseModel):
     email: EmailStr
     password: str
 
+
 @router.post("/signup")
-def signup(req: SignupRequest):
+@limiter.limit("5/minute")
+def signup(request: Request, req: SignupRequest):
+    if len(req.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    
-    # Check if user exists
     cursor.execute("SELECT id FROM users WHERE email = ?", (req.email,))
     if cursor.fetchone():
         conn.close()
         raise HTTPException(status_code=400, detail="Email already registered")
-        
+
     hashed_password = get_password_hash(req.password)
-    
     try:
         cursor.execute(
             "INSERT INTO users (email, name, company, hashed_password) VALUES (?, ?, ?, ?)",
             (req.email, req.name, req.company, hashed_password)
         )
         conn.commit()
-    except sqlite3.Error as e:
+    except sqlite3.Error:
         conn.close()
         raise HTTPException(status_code=500, detail="Database error")
-        
+
     user_id = cursor.lastrowid
     conn.close()
-    
-    # Generate token
+
     token = create_access_token(subject=req.email)
-    
     return {
         "message": "Account created successfully",
         "token": token,
-        "user": {
-            "id": user_id,
-            "name": req.name,
-            "email": req.email,
-            "company": req.company
-        }
+        "user": {"id": user_id, "name": req.name, "email": req.email, "company": req.company}
     }
 
+
 @router.post("/login")
-def login(req: LoginRequest):
+@limiter.limit("10/minute")
+def login(request: Request, req: LoginRequest):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE email = ?", (req.email,))
     user = cursor.fetchone()
     conn.close()
-    
-    if not user:
+
+    if not user or not verify_password(req.password, user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
-        
-    if not verify_password(req.password, user["hashed_password"]):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
-        
+
     token = create_access_token(subject=user["email"])
-    
     return {
         "token": token,
-        "user": {
-            "id": user["id"],
-            "name": user["name"],
-            "email": user["email"],
-            "company": user["company"]
-        }
+        "user": {"id": user["id"], "name": user["name"], "email": user["email"], "company": user["company"]}
     }
 
-@router.get("/me")
-def get_current_user(token: str = Depends(oauth2_scheme)):
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
+    """JWT dependency — inject this into any protected route."""
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        secret = _get_secret_key()
+        payload = jwt.decode(token, secret, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-        
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT id, email, name, company FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
     conn.close()
-    
+
     if user is None:
         raise credentials_exception
-        
-    return {
-        "id": user["id"],
-        "name": user["name"],
-        "email": user["email"],
-        "company": user["company"]
-    }
+
+    return {"id": user["id"], "name": user["name"], "email": user["email"], "company": user["company"]}
+
+
+@router.get("/me")
+def get_me(current_user: dict = Depends(get_current_user)):
+    return current_user
