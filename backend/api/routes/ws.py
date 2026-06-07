@@ -2,7 +2,26 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from typing import List, Dict
 import asyncio
 import json
-from api.dependencies.auth import get_current_user_ws
+from jose import jwt, JWTError
+from api.core.security import ALGORITHM, _get_secret_key
+from api.db.database import get_db_connection
+
+async def get_current_user_ws(token: str):
+    try:
+        secret = _get_secret_key()
+        payload = jwt.decode(token, secret, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if not email:
+            return None
+            
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, email, name, company FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        conn.close()
+        return user
+    except Exception:
+        return None
 
 router = APIRouter()
 
@@ -47,7 +66,7 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
         await websocket.close(code=1008)
         return
 
-    await manager.connect(websocket, user.id)
+    await manager.connect(websocket, user["id"])
     try:
         # Send an initial welcome/sync payload
         await websocket.send_json({"type": "system", "message": "Connected to Nexus Real-Time Stream"})
@@ -58,4 +77,4 @@ async def websocket_endpoint(websocket: WebSocket, token: str):
             if data == "ping":
                 await websocket.send_json({"type": "pong"})
     except WebSocketDisconnect:
-        manager.disconnect(websocket, user.id)
+        manager.disconnect(websocket, user["id"])
