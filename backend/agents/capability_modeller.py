@@ -14,11 +14,17 @@ class CapabilityModellerAgent:
     def __init__(self):
         self.claude = ClaudeService()
 
-    async def build_model(self, m365_activity: dict) -> dict:
+    async def build_model(self, user_id: str) -> dict:
         """
-        Input: raw M365 Graph API payload (meetings, docs, code activity)
+        Input: user_id to fetch raw M365 Graph API payload (meetings, docs, code activity)
         Output: structured CapabilityModel with confidence scores
         """
+        logger.info(f"CapabilityModeller: fetching M365 activity for {user_id}")
+        
+        from services.graph_service import MSGraphService
+        graph = MSGraphService()
+        m365_activity = await graph.get_recent_activity(user_id)
+        
         logger.info("CapabilityModeller: building model from M365 activity")
         model = await self.claude.model_capabilities(m365_activity)
         return {

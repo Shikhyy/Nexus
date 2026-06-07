@@ -18,7 +18,7 @@ class ActionPlannerAgent:
         self,
         gaps: list[dict],
         capability_model: dict,
-        calendar_slots: list[dict] | None = None,
+        user_id: str = "current_user",
     ) -> dict:
         """
         Calls Gemini to generate a personalized action plan.
@@ -26,12 +26,16 @@ class ActionPlannerAgent:
         Args:
             gaps: GapIndex ranked gap list
             capability_model: user's current capability profile
-            calendar_slots: available time blocks from M365 Graph
+            user_id: string to fetch available time blocks from M365 Graph
         """
+        from services.graph_service import MSGraphService
+        graph = MSGraphService()
+        calendar_slots = await graph.get_calendar_slots(user_id)
+        
         context = {
             "openGaps": gaps[:5],  # Top 5 only to stay focused
             "capabilityProfile": capability_model,
-            "availableSlots": calendar_slots or [],
+            "availableSlots": calendar_slots,
         }
 
         logger.info("ActionPlanner: generating plan for %d gaps", len(gaps))
