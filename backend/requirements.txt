@@ -10,3 +10,5 @@ google-generativeai>=0.8.0
 azure-identity>=1.17.0
 azure-search-documents>=11.6.0
 email-validator>=2.1.0
+passlib>=1.7.4
+bcrypt>=4.0.0
