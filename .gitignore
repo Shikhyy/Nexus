@@ -25,3 +25,8 @@ backend/.venv/
 
 # Logs
 *.log
+
+# Scripts & Github config
+.github/
+build_phase6.py
+*.sh
