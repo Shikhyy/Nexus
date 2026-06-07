@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     app_name: str = "NEXUS Human-AI Co-Evolution Engine"
     environment: str = "development"
     
+    # Groq (Fast LLM Inference)
+    groq_api_key: str = ""
+    groq_model: str = "llama3-8b-8192"
+    
     # Azure OpenAI
     azure_openai_endpoint: str = ""
     azure_openai_key: str = ""

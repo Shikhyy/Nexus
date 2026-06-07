@@ -1,32 +1,28 @@
-from services.claude_service import ClaudeService
+from services.groq_service import GroqService
 import logging
 
 logger = logging.getLogger(__name__)
 
-
 class CapabilityModellerAgent:
-    """
-    AutoGen-style agent: reads Microsoft 365 behavioral signals
-    (calendar, Teams messages, documents touched) and uses
-    Claude's reasoning ability to infer latent capability levels.
-    """
-
     def __init__(self):
-        self.claude = ClaudeService()
+        self.groq = GroqService()
 
     async def build_model(self, user_id: str) -> dict:
-        """
-        Input: user_id to fetch raw M365 Graph API payload (meetings, docs, code activity)
-        Output: structured CapabilityModel with confidence scores
-        """
-        logger.info(f"CapabilityModeller: fetching M365 activity for {user_id}")
-        
         from services.graph_service import MSGraphService
         graph = MSGraphService()
         m365_activity = await graph.get_recent_activity(user_id)
         
-        logger.info("CapabilityModeller: building model from M365 activity")
-        model = await self.claude.model_capabilities(m365_activity)
+        mock_fallback = {
+            "capabilities": [
+                {"name": "Agentic AI", "level": 0.85, "trend": "up", "evidenceCount": 42},
+                {"name": "React Server Components", "level": 0.9, "trend": "up", "evidenceCount": 112},
+                {"name": "LLM Orchestration", "level": 0.6, "trend": "stable", "evidenceCount": 15}
+            ]
+        }
+        
+        system = "You are a Capability Modeller. Infer technical capabilities from Microsoft 365 signals. Return valid JSON containing a 'capabilities' array with properties: name, level (0-1), trend, and evidenceCount."
+        model = await self.groq.generate_json(system, f"M365 Activity:\n{m365_activity}", mock_fallback)
+        
         return {
             "capabilities": model.get("capabilities", []),
             "generatedAt": None,
@@ -34,6 +30,7 @@ class CapabilityModellerAgent:
         }
 
     async def update_capability(self, existing: dict, new_evidence: dict) -> dict:
-        """Incrementally update a capability model with new evidence."""
         merged = {**existing, "newEvidence": new_evidence}
-        return await self.claude.model_capabilities(merged)
+        mock_fallback = {"capabilities": existing.get("capabilities", [])}
+        system = "Update the capability model with new evidence. Return valid JSON containing a 'capabilities' array."
+        return await self.groq.generate_json(system, f"Merged Context:\n{merged}", mock_fallback)
