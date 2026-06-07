@@ -101,12 +101,16 @@ export default function Dashboard() {
       api.get<{ signals: Signal[] }>('/signals/').catch(() => null),
       api.post<{ actions: Action[] }>('/agent/plan', { use_default_gaps: true }).catch(() => null),
     ]).then(([gapData, signalData, actionData]) => {
-      if (gapData?.gaps?.length) {
+      if (gapData?.gaps && Array.isArray(gapData.gaps)) {
         setGaps(gapData.gaps);
-        setReadiness(gapData.readinessScore);
+        if (gapData.readinessScore) setReadiness(gapData.readinessScore);
       }
-      if (signalData?.signals?.length) setSignals(signalData.signals);
-      if (actionData?.actions?.length) setActions(actionData.actions);
+      if (signalData?.signals && Array.isArray(signalData.signals)) {
+        setSignals(signalData.signals);
+      }
+      if (actionData?.actions && Array.isArray(actionData.actions)) {
+        setActions(actionData.actions);
+      }
     }).finally(() => setLoading(false));
   }, []);
 
