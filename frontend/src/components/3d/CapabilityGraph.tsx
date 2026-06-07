@@ -28,7 +28,7 @@ function MorphingGraph() {
   return (
     <group>
       {/* Inner Core */}
-      <Icosahedron ref={meshRef} args={[2, 1]}>
+      <Icosahedron ref={innerRef} args={[2, 1]}>
         <meshBasicMaterial color="#2d3a3a" wireframe={true} transparent opacity={0.4} />
       </Icosahedron>
       
