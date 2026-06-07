@@ -3,7 +3,7 @@
  * Automatically injects the JWT Bearer token on every request.
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/+$/, '');
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
