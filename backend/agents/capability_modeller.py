@@ -1,1 +1,33 @@
-from services.claude_service import ClaudeService\n\nclass CapabilityModellerAgent:\n    def __init__(self, claude: ClaudeService):\n        self.claude = claude\n\n    async def build_model(self, m365_activity):\n        return await self.claude.model_capabilities(m365_activity)\n
+from services.claude_service import ClaudeService
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class CapabilityModellerAgent:
+    """
+    AutoGen-style agent: reads Microsoft 365 behavioral signals
+    (calendar, Teams messages, documents touched) and uses
+    Claude's reasoning ability to infer latent capability levels.
+    """
+
+    def __init__(self):
+        self.claude = ClaudeService()
+
+    async def build_model(self, m365_activity: dict) -> dict:
+        """
+        Input: raw M365 Graph API payload (meetings, docs, code activity)
+        Output: structured CapabilityModel with confidence scores
+        """
+        logger.info("CapabilityModeller: building model from M365 activity")
+        model = await self.claude.model_capabilities(m365_activity)
+        return {
+            "capabilities": model.get("capabilities", []),
+            "generatedAt": None,
+            "source": "m365_graph",
+        }
+
+    async def update_capability(self, existing: dict, new_evidence: dict) -> dict:
+        """Incrementally update a capability model with new evidence."""
+        merged = {**existing, "newEvidence": new_evidence}
+        return await self.claude.model_capabilities(merged)

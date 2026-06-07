@@ -40,7 +40,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/gaps/')
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    fetch(`${apiUrl}/gaps/`)
       .then(res => res.json())
       .then(data => {
         if (data.gaps?.length > 0) {

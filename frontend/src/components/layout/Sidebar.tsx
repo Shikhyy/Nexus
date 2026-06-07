@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { LayoutDashboard, Activity, Users, Settings, LogOut, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const navItems = [
   { name: 'Dashboard',   icon: LayoutDashboard, path: '/dashboard' },
@@ -12,8 +13,36 @@ const navItems = [
   { name: 'Settings',    icon: Settings,        path: '/settings'  },
 ];
 
+interface AgentStatus {
+  name: string;
+  status: string;
+}
+
+const FALLBACK_AGENTS: AgentStatus[] = [
+  { name: 'Signal Fuser',        status: 'active' },
+  { name: 'Capability Modeller', status: 'active' },
+  { name: 'Gap Analyser',        status: 'active' },
+  { name: 'Action Planner',      status: 'idle'   },
+];
+
 export function Sidebar() {
   const pathname = usePathname();
+  const [agents, setAgents] = useState<AgentStatus[]>(FALLBACK_AGENTS);
+
+  useEffect(() => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    fetch(`${apiUrl}/agent/status`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.agents?.length > 0) {
+          setAgents(data.agents.map((a: { name: string; status: string }) => ({
+            name: a.name.replace('Agent', '').trim(),
+            status: a.status,
+          })));
+        }
+      })
+      .catch(() => { /* use fallback */ });
+  }, []);
 
   return (
     <motion.aside
@@ -57,19 +86,18 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Agent Status */}
+      {/* Agent Status — live from /agent/status */}
       <div className="px-4 pb-4">
         <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-parchment)] p-3 space-y-2">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-muted)]">Agent Status</p>
-          {[
-            { name: 'Signal Fuser',         active: true  },
-            { name: 'Capability Modeller',  active: true  },
-            { name: 'Gap Analyser',         active: true  },
-            { name: 'Action Planner',       active: false },
-          ].map(agent => (
+          <p className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-muted)] mb-2">Agent Status</p>
+          {agents.map(agent => (
             <div key={agent.name} className="flex items-center justify-between">
               <span className="text-[10px] text-[var(--color-secondary)]">{agent.name}</span>
-              <span className={`w-1.5 h-1.5 rounded-full ${agent.active ? 'bg-[var(--color-forest)] animate-pulse' : 'bg-[var(--color-muted)]'}`} />
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  agent.status === 'active' ? 'bg-[var(--color-forest)] animate-pulse' : 'bg-[var(--color-muted)]'
+                }`}
+              />
             </div>
           ))}
         </div>
