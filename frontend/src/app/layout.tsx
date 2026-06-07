@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   keywords: ["AI", "capability mapping", "enterprise", "AutoGen", "Azure AI", "Microsoft"],
 };
 
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,7 +24,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[var(--color-parchment)]">
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

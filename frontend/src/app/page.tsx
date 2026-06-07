@@ -44,7 +44,7 @@ export default function Home() {
             className="pt-6 flex gap-4 justify-center pointer-events-auto w-full"
           >
             <Link
-              href="/dashboard"
+              href="/login"
               className="px-8 py-4 bg-[var(--color-obsidian)] text-[var(--color-parchment)] rounded-full text-sm font-medium tracking-wide hover:scale-105 hover:bg-black transition-all duration-300 shadow-xl"
             >
               Enter NEXUS
@@ -121,7 +121,7 @@ export default function Home() {
             When the Gap Analyser detects a critical shortfall between market demand and internal capability, the Talent Broker takes action. Using Semantic Kernel memory, it auto-assembles strike teams and schedules 1:1 mentorship sessions via MS Graph—drastically reducing external hiring costs.
           </p>
           <Link
-            href="/routing"
+            href="/login"
             className="inline-flex px-6 py-3 bg-[var(--color-obsidian)] text-[var(--color-parchment)] rounded-full text-sm font-medium tracking-wide hover:bg-black transition-colors"
           >
             View Talent Routing UI
@@ -141,7 +141,7 @@ export default function Home() {
           Built for the future of enterprise AI orchestration.
         </p>
         <Link
-          href="/dashboard"
+          href="/login"
           className="px-8 py-3 bg-[var(--color-parchment)] text-[var(--color-obsidian)] rounded-full text-sm font-medium tracking-wide hover:scale-105 transition-transform"
         >
           Launch Application

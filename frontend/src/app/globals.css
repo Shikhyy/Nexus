@@ -51,24 +51,43 @@
   --duration-slower: 700ms;
 }
 
+.dark {
+  /* Dark mode aesthetic */
+  --color-parchment: #121212;
+  --color-obsidian: #f9f8f6;
+  --color-linen: #1a1a1a;
+  --color-primary: #e6e4dc;
+  --color-secondary: #a3a19a;
+  --color-accent: #ff6b52;
+  --color-muted: #5c6b6b;
+  --color-border: #2a2a2a;
+  --color-stone: #242424;
+  
+  /* Functional Accents */
+  --color-sienna: #e07a5f;
+  --color-sienna-surface: #3a221a;
+  --color-forest: #81b29a;
+  --color-forest-surface: #1d2b23;
+}
+
 /* Tailwind v4 theme layer for Tailwind utility classes */
 @theme {
-  --color-parchment:       #FAFAF8;
-  --color-linen:           #F4F2EE;
-  --color-stone:           #EDE9E2;
-  --color-border:          #E2DDD6;
-  --color-muted:           #B8B2A8;
-  --color-secondary:       #6B6560;
-  --color-primary:         #3D3830;
-  --color-obsidian:        #1A1713;
-  --color-sienna:          #C4511A;
-  --color-forest:          #1E6E4A;
-  --color-ochre:           #9B6914;
-  --color-prussian:        #1E4E8C;
-  --color-sienna-surface:  #FAE8E0;
-  --color-forest-surface:  #E0F0E8;
-  --color-ochre-surface:   #FBF0D8;
-  --color-prussian-surface:#E0EAF8;
+  --color-parchment:       var(--color-parchment);
+  --color-linen:           var(--color-linen);
+  --color-stone:           var(--color-stone);
+  --color-border:          var(--color-border);
+  --color-muted:           var(--color-muted);
+  --color-secondary:       var(--color-secondary);
+  --color-primary:         var(--color-primary);
+  --color-obsidian:        var(--color-obsidian);
+  --color-sienna:          var(--color-sienna);
+  --color-forest:          var(--color-forest);
+  --color-ochre:           var(--color-ochre);
+  --color-prussian:        var(--color-prussian);
+  --color-sienna-surface:  var(--color-sienna-surface);
+  --color-forest-surface:  var(--color-forest-surface);
+  --color-ochre-surface:   var(--color-ochre-surface);
+  --color-prussian-surface:var(--color-prussian-surface);
 
   --font-sans:  'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;

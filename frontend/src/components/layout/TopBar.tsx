@@ -1,8 +1,9 @@
 'use client';
 
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, Moon, Sun } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 // SSR-safe dynamic import for the WebGL MiniOrb
 const MiniOrb = dynamic(
@@ -11,6 +12,7 @@ const MiniOrb = dynamic(
 );
 
 export function TopBar() {
+  const { theme, toggleTheme } = useTheme();
   const [notifOpen, setNotifOpen] = useState(false);
 
   return (
@@ -26,6 +28,13 @@ export function TopBar() {
       </div>
 
       <div className="flex items-center gap-4">
+        <button
+          onClick={toggleTheme}
+          className="text-[var(--color-muted)] hover:text-[var(--color-primary)] transition-colors mr-2"
+          aria-label="Toggle Theme"
+        >
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
         <button className="text-[var(--color-muted)] hover:text-[var(--color-primary)] transition-colors">
           <Search size={16} />
         </button>
