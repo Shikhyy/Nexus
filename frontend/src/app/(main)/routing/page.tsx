@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { UserPlus, Sparkles, Check } from 'lucide-react';
+import { api } from '@/lib/api';
 
 interface Mentorship {
   id: string;
@@ -29,11 +30,9 @@ export default function TalentRoutingPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    
     Promise.all([
-      fetch(`${apiUrl}/routing/mentorships`).then(res => res.json()),
-      fetch(`${apiUrl}/routing/teams`).then(res => res.json())
+      api.get<{ mentorships: Mentorship[] }>('/routing/mentorships'),
+      api.get<{ teams: StrikeTeam[] }>('/routing/teams')
     ]).then(([mentorData, teamData]) => {
       if (mentorData.mentorships) setMentorships(mentorData.mentorships);
       if (teamData.teams) setTeams(teamData.teams);

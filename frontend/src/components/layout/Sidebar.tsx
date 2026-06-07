@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getStoredUser, logout } from '@/lib/api';
+import { getStoredUser, logout, api } from '@/lib/api';
 
 const navItems = [
   { name: 'Dashboard',      icon: LayoutDashboard, path: '/dashboard' },
@@ -33,12 +33,10 @@ export function Sidebar() {
   const [agents, setAgents] = useState<AgentStatus[]>(FALLBACK_AGENTS);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    fetch(`${apiUrl}/agent/status`)
-      .then(res => res.json())
+    api.get<{ agents: { name: string; status: string }[] }>('/agent/status')
       .then(data => {
         if (data.agents?.length > 0) {
-          setAgents(data.agents.map((a: { name: string; status: string }) => ({
+          setAgents(data.agents.map((a) => ({
             name: a.name.replace('Agent', '').trim(),
             status: a.status,
           })));

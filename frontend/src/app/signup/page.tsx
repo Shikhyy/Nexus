@@ -4,15 +4,16 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
+import { api } from '@/lib/api';
 
 export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [email, setEmail] = useState('');
@@ -24,29 +25,15 @@ export default function SignupPage() {
     setError('');
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const res = await fetch(`${apiUrl}/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, company, email, password })
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || 'Failed to create account');
-      }
-
-      const data = await res.json();
+      const data = await api.post<{ token: string; user: { id: number; name: string; email: string; company: string } }>(
+        '/auth/signup',
+        { name, company, email, password },
+        { skipAuth: true }
+      );
       localStorage.setItem('nexus-token', data.token);
       localStorage.setItem('nexus-user', JSON.stringify(data.user));
-      
       setSuccess(true);
-      
-      // Delay redirect to show success animation
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1500);
-
+      setTimeout(() => router.replace('/dashboard'), 1500);
     } catch (err) {
       setError((err as Error).message);
       setIsLoading(false);
@@ -137,16 +124,21 @@ export default function SignupPage() {
             
             <div>
               <label className="block text-xs font-medium text-[var(--color-secondary)] mb-1.5 uppercase tracking-wide">Password</label>
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading || success}
-                minLength={6}
-                className="w-full bg-[var(--color-parchment)] border border-[var(--color-border)] rounded-lg px-4 py-3 text-sm text-[var(--color-obsidian)] focus:outline-none focus:ring-2 focus:ring-[var(--color-sienna)] focus:border-transparent transition-all disabled:opacity-50"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading || success}
+                  minLength={6}
+                  className="w-full bg-[var(--color-parchment)] border border-[var(--color-border)] rounded-lg px-4 py-3 pr-12 text-sm text-[var(--color-obsidian)] focus:outline-none focus:ring-2 focus:ring-[var(--color-sienna)] focus:border-transparent transition-all disabled:opacity-50"
+                  placeholder="••••••••"
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-[var(--color-secondary)] transition-colors">
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
             </div>
 
             <button

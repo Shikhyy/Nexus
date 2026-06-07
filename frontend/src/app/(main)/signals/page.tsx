@@ -2,6 +2,7 @@
 import { SignalFeed } from '@/components/dashboard/SignalFeed';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
 
 interface Signal {
   id: string;
@@ -34,14 +35,8 @@ export default function SignalsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    fetch(`${apiUrl}/signals/`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.signals?.length > 0) {
-          setSignals(data.signals);
-        }
-      })
+    api.get<{ signals: Signal[] }>('/signals/')
+      .then(data => { if (data.signals?.length > 0) setSignals(data.signals); })
       .catch(() => { /* use fallback */ })
       .finally(() => setLoading(false));
   }, []);
