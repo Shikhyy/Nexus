@@ -4,7 +4,7 @@ from pydantic import BaseModel, EmailStr
 from jose import jwt, JWTError
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-import sqlite3
+import psycopg2
 
 from api.core.security import (
     get_password_hash, verify_password, create_access_token,
@@ -37,7 +37,7 @@ def signup(request: Request, req: SignupRequest):
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE email = ?", (req.email,))
+    cursor.execute("SELECT id FROM users WHERE email = %s", (req.email,))
     if cursor.fetchone():
         conn.close()
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -45,15 +45,15 @@ def signup(request: Request, req: SignupRequest):
     hashed_password = get_password_hash(req.password)
     try:
         cursor.execute(
-            "INSERT INTO users (email, name, company, hashed_password) VALUES (?, ?, ?, ?)",
+            "INSERT INTO users (email, name, company, hashed_password) VALUES (%s, %s, %s, %s) RETURNING id",
             (req.email, req.name, req.company, hashed_password)
         )
+        user_id = cursor.fetchone()["id"]
         conn.commit()
-    except sqlite3.Error:
+    except psycopg2.Error:
         conn.close()
         raise HTTPException(status_code=500, detail="Database error")
 
-    user_id = cursor.lastrowid
     conn.close()
 
     token = create_access_token(subject=req.email)
@@ -69,7 +69,7 @@ def signup(request: Request, req: SignupRequest):
 def login(request: Request, req: LoginRequest):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE email = ?", (req.email,))
+    cursor.execute("SELECT * FROM users WHERE email = %s", (req.email,))
     user = cursor.fetchone()
     conn.close()
 
@@ -101,7 +101,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, email, name, company FROM users WHERE email = ?", (email,))
+    cursor.execute("SELECT id, email, name, company FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
     conn.close()
 

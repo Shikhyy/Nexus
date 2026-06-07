@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: nexus-backend
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: nexus-redis
+          property: connectionString
+      - key: DATABASE_URL
+        sync: false # You will manually input the Supabase URL in the Render dashboard
+
+  - type: redis
+    name: nexus-redis
+    ipAllowList: [] # internal access only
+    plan: free

@@ -5,14 +5,24 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from config import settings
-from api.routes import auth, users, gaps, signals, agent, org, routing, chat, progress
+from api.routes import auth, users, gaps, signals, agent, org, routing, chat, progress, ws
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ── Rate Limiter ──────────────────────────────────────────────────────────────
-limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
+import os
+from limits.storage import RedisStorage, MemoryStorage
+
+redis_url = os.environ.get("REDIS_URL")
+if redis_url:
+    storage = RedisStorage(redis_url)
+    logger.info(f"Using Redis rate limiting: {redis_url}")
+else:
+    storage = MemoryStorage()
+    logger.info("Using Memory rate limiting")
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"], storage_uri=redis_url if redis_url else "memory://")
 
 app = FastAPI(
     title=settings.app_name,
@@ -51,6 +61,7 @@ app.include_router(org.router,      prefix="/org",      tags=["org"])
 app.include_router(routing.router,  prefix="/routing",  tags=["routing"])
 app.include_router(chat.router,     prefix="/chat",     tags=["chat"])
 app.include_router(progress.router, prefix="/progress", tags=["progress"])
+app.include_router(ws.router,       prefix="/ws",       tags=["websockets"])
 
 
 @app.get("/", tags=["health"])

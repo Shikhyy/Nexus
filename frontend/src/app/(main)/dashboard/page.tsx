@@ -7,6 +7,7 @@ import { GapIndex } from '@/components/dashboard/GapIndex';
 import { SignalFeed } from '@/components/dashboard/SignalFeed';
 import { ActionPanel } from '@/components/dashboard/ActionPanel';
 import { api, getStoredUser } from '@/lib/api';
+import { useNexusSocket } from '@/lib/socket';
 import { TrendingUp, Zap, Radio, Target } from 'lucide-react';
 
 interface Gap {
@@ -68,6 +69,27 @@ export default function Dashboard() {
   const [readiness, setReadiness] = useState(74);
   const [loading, setLoading] = useState(true);
   const user = getStoredUser();
+  const { isConnected, lastMessage } = useNexusSocket();
+
+  useEffect(() => {
+    if (lastMessage) {
+      if (lastMessage.type === 'new_signal') {
+        setSignals(prev => [lastMessage.data, ...prev].slice(0, 10)); // Keep top 10
+      } else if (lastMessage.type === 'new_action') {
+        setActions(prev => [lastMessage.data, ...prev].slice(0, 5));
+      } else if (lastMessage.type === 'gap_update') {
+        setGaps(prev => {
+          const idx = prev.findIndex(g => g.id === lastMessage.data.id);
+          if (idx > -1) {
+            const next = [...prev];
+            next[idx] = lastMessage.data;
+            return next;
+          }
+          return [lastMessage.data, ...prev];
+        });
+      }
+    }
+  }, [lastMessage]);
 
   useEffect(() => {
     Promise.all([
@@ -105,9 +127,11 @@ export default function Dashboard() {
             Real-time co-evolution status — {user?.company ?? 'your organization'}
           </p>
         </div>
-        <div className="flex items-center gap-1.5 bg-[var(--color-linen)] border border-[var(--color-border)] rounded-full px-3 py-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-forest)] animate-pulse" />
-          <span className="text-[10px] font-mono text-[var(--color-secondary)] uppercase tracking-wider">Live · {new Date().toLocaleTimeString()}</span>
+        <div className={`flex items-center gap-1.5 bg-[var(--color-linen)] border border-[var(--color-border)] rounded-full px-3 py-1.5 transition-colors ${isConnected ? 'opacity-100' : 'opacity-60'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isConnected ? 'bg-[var(--color-forest)]' : 'bg-[var(--color-ochre)]'}`} />
+          <span className="text-[10px] font-mono text-[var(--color-secondary)] uppercase tracking-wider">
+            {isConnected ? 'Live WS Connected' : 'Connecting...'}
+          </span>
         </div>
       </motion.div>
 
