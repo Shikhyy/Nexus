@@ -1,8 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Activity, Users, Settings, LogOut, Zap, Network } from 'lucide-react';
+import { LayoutDashboard, Activity, Users, Settings, LogOut, Network } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -54,7 +55,7 @@ export function Sidebar() {
     >
       {/* Brand */}
       <div className="px-6 py-5 border-b border-[var(--color-border)] flex items-center gap-2">
-        <Zap size={16} className="text-[var(--color-sienna)]" />
+        <Image src="/logo.png" alt="Nexus Logo" width={24} height={24} className="rounded-sm object-cover" />
         <h2 className="text-xl text-[var(--color-obsidian)] tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
           NEXUS
         </h2>
