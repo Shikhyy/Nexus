@@ -65,7 +65,8 @@ export function GapIndex({ gaps, loading }: { gaps: Gap[]; loading?: boolean }) 
       ) : (
         <div ref={listRef} className="space-y-4">
           {gaps.map((gap, i) => {
-            const cfg = STATUS_CONFIG[gap.status];
+            const safeStatus = (gap.status?.toLowerCase() as keyof typeof STATUS_CONFIG) || 'watch';
+            const cfg = STATUS_CONFIG[safeStatus] || STATUS_CONFIG.watch;
             return (
               <motion.div
                 key={gap.id}

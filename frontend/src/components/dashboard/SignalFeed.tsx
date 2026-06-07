@@ -82,7 +82,8 @@ export function SignalFeed({ signals, loading }: { signals: Signal[]; loading?: 
         ) : (
           <AnimatePresence mode="popLayout">
             {filtered.map((signal, i) => {
-              const type = TYPE_CONFIG[signal.type];
+              const safeType = (signal.type?.toLowerCase() as keyof typeof TYPE_CONFIG) || 'tech';
+              const type = TYPE_CONFIG[safeType] || TYPE_CONFIG.tech;
               return (
                 <motion.div
                   key={signal.id}

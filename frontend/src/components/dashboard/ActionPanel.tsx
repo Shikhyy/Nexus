@@ -61,7 +61,9 @@ export function ActionPanel({ actions, loading }: { actions: Action[]; loading?:
         ) : (
           <AnimatePresence>
             {visible.map((action, i) => {
-              const impact = IMPACT_CONFIG[action.impact];
+              // Ensure we don't crash if the LLM generates an unknown impact level
+              const safeImpact = (action.impact?.toLowerCase() as keyof typeof IMPACT_CONFIG) || 'medium';
+              const impact = IMPACT_CONFIG[safeImpact] || IMPACT_CONFIG.medium;
               const isApproved = approved.has(action.id);
 
               return (
