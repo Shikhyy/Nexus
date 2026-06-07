@@ -1,12 +1,13 @@
 import psycopg2
 import psycopg2.extras
 import os
+from fastapi import HTTPException
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db_connection():
     if not DATABASE_URL:
-        raise Exception("DATABASE_URL environment variable is not set")
+        raise HTTPException(status_code=500, detail="DATABASE_URL is missing in the backend environment. Please set your Supabase Postgres URL.")
     # Using RealDictCursor to maintain compatibility with sqlite3.Row
     conn = psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
     return conn

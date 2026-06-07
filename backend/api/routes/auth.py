@@ -50,9 +50,9 @@ def signup(request: Request, req: SignupRequest):
         )
         user_id = cursor.fetchone()["id"]
         conn.commit()
-    except psycopg2.Error:
+    except Exception as e:
         conn.close()
-        raise HTTPException(status_code=500, detail="Database error")
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
     conn.close()
 

@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     app_name: str = "NEXUS Human-AI Co-Evolution Engine"
     environment: str = "development"
     # JWT — MUST be set in .env. Generate with: openssl rand -hex 32
-    secret_key: str = ""
+    secret_key: str = "nexus-default-hackathon-secret-key-123"
 
     # Groq (Fast LLM Inference)
     groq_api_key: str = ""
@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     ms_graph_client_secret: str = ""
 
     # CORS
-    allowed_origins: list[str] = ["http://localhost:3000"]
+    allowed_origins: list[str] = ["*"]
 
     class Config:
         env_file = ".env"
