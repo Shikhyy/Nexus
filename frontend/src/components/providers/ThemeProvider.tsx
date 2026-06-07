@@ -42,10 +42,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
+  // Always provide context, even before mounting, so useTheme doesn't throw.
+  // Wait until mounted to avoid hydration mismatch flashes, if necessary you can return null for children but then the whole app is blank on SSR.
+  // Instead, just render with the default theme.
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
