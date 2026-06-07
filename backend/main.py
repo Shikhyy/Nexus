@@ -13,6 +13,17 @@ app = FastAPI(
     description="Real-time human-AI co-evolution engine powered by Azure AI, AutoGen, Semantic Kernel, and multi-model AI.",
 )
 
+from fastapi.responses import JSONResponse
+from fastapi import Request
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Global exception: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An internal server error occurred.", "error": str(exc)},
+    )
+
 # CORS — uses settings so it works in dev and production
 app.add_middleware(
     CORSMiddleware,

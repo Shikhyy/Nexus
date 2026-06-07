@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, X, Calendar, ChevronRight } from 'lucide-react';
+import { Check, X, Calendar } from 'lucide-react';
 import { useState } from 'react';
 
 interface Action {

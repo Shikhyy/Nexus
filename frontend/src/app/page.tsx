@@ -94,7 +94,7 @@ export default function Home() {
         >
           <h2 className="text-4xl mb-4" style={{ fontFamily: 'Georgia, serif' }}>2. The Capability Modeller</h2>
           <p className="text-[var(--color-secondary)] leading-relaxed mb-6">
-            Integrating directly with the <strong>Microsoft 365 Graph API</strong>, the Modeller autonomously analyzes Teams messages, calendar schedules, and SharePoint documents. It builds a hyper-accurate, real-time map of your organization's latent skills without requiring manual employee surveys.
+            Integrating directly with the <strong>Microsoft 365 Graph API</strong>, the Modeller autonomously analyzes Teams messages, calendar schedules, and SharePoint documents. It builds a hyper-accurate, real-time map of your organization&apos;s latent skills without requiring manual employee surveys.
           </p>
           <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-[var(--color-forest)]">
             <span className="w-2 h-2 rounded-full bg-[var(--color-forest)] animate-pulse" />

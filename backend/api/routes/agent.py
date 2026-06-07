@@ -30,6 +30,8 @@ async def generate_action_plan(req: PlanRequest):
         else:
             gaps_data = [g.model_dump() for g in req.gaps]
 
+        import asyncio
+        await asyncio.sleep(1.5) # Simulate LLM inference
         planner = ActionPlannerAgent()
         result = await planner.plan(gaps=gaps_data, capability_model={})
 
