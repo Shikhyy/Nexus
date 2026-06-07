@@ -39,7 +39,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Global exception on {request.url}: {exc}")
     return JSONResponse(
         status_code=500,
-        content={"detail": "An internal server error occurred."},
+        content={"detail": f"Server crash: {str(exc)}"},
     )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
