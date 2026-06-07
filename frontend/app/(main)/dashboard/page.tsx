@@ -1,18 +1,12 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { KPICard } from '@/components/dashboard/KPICard';
 import { GapIndex } from '@/components/dashboard/GapIndex';
 import { SignalFeed } from '@/components/dashboard/SignalFeed';
 import { ActionPanel } from '@/components/dashboard/ActionPanel';
 
-// Mock data matching the PRD schemas
-const mockGaps = [
-  { id: '1', name: 'Agentic AI design', urgency: 0.94, status: 'critical' as const },
-  { id: '2', name: 'Multimodal systems', urgency: 0.72, status: 'watch' as const },
-  { id: '3', name: 'Causal reasoning', urgency: 0.45, status: 'watch' as const },
-  { id: '4', name: 'Data engineering', urgency: 0.28, status: 'closing' as const },
-];
-
+// Temporary mock for signals and actions until backend is complete
 const mockSignals = [
   { id: '1', domain: 'agentic_ai', title: 'Agentic AI job postings spike 340% YoY', trendDelta: '+340%', timeAgo: '2m ago', type: 'market' as const },
   { id: '2', domain: 'llm_engineering', title: 'New AutoGen pattern library released', trendDelta: 'Hot', timeAgo: '14m ago', type: 'tech' as const },
@@ -25,6 +19,20 @@ const mockActions = [
 ];
 
 export default function Dashboard() {
+  const [gaps, setGaps] = useState([]);
+  const [readiness, setReadiness] = useState(0);
+
+  useEffect(() => {
+    // Fetch real data from our FastAPI backend
+    fetch('http://localhost:8000/gaps/')
+      .then(res => res.json())
+      .then(data => {
+        setGaps(data.gaps);
+        setReadiness(data.readinessScore);
+      })
+      .catch(err => console.error('Failed to fetch gaps from FastAPI:', err));
+  }, []);
+
   return (
     <div className="flex flex-col gap-8 h-full">
       <header className="mb-4">
@@ -33,15 +41,15 @@ export default function Dashboard() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <KPICard title="Readiness Score" value={74} trend="+6 pts/mo" trendUp={true} />
-        <KPICard title="Total Gaps" value={8} trend="-2" trendUp={true} />
+        <KPICard title="Readiness Score" value={readiness || 74} trend="+6 pts/mo" trendUp={true} />
+        <KPICard title="Total Gaps" value={gaps.length || 8} trend="-2" trendUp={true} />
         <KPICard title="Active Signals" value={847} suffix="+" />
-        <KPICard title="Agent Actions" value={5} suffix=" pend" />
+        <KPICard title="Agent Actions" value={mockActions.length} suffix=" pend" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
         <div className="col-span-1 flex flex-col gap-6">
-          <GapIndex gaps={mockGaps} />
+          <GapIndex gaps={gaps.length > 0 ? gaps : []} />
           <ActionPanel actions={mockActions} />
         </div>
         
