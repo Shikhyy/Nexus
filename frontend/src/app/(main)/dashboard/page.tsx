@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { KPICard } from '@/components/dashboard/KPICard';
 import { GapIndex } from '@/components/dashboard/GapIndex';
 import { SignalFeed } from '@/components/dashboard/SignalFeed';
@@ -53,11 +53,11 @@ const FALLBACK_ACTIONS: Action[] = [
   { id: '3', title: 'Connect with Jane D. (ML lead) — offers mentorship', targetGap: 'Causal reasoning', impact: 'medium' },
 ];
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08 } },
 };
-const itemVariant = {
+const itemVariant: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
 };
