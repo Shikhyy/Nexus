@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: ['three'],
+  turbopack: {
+    resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs'],
+  },
 };
 
 export default nextConfig;
